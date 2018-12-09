@@ -2,7 +2,7 @@
 
 import feedparser
 from datetime import datetime
-from time import time, mktime
+from time import gmtime, mktime
 import json
 import html
 from itertools import chain
@@ -49,9 +49,10 @@ def process_entry(e):
             'link': e.link}
 
 
-
 def within_interval(e):
-    return time() - mktime(e.published_parsed) <= INTERVAL_SEC
+    return mktime(gmtime()) - mktime(e.published_parsed) <= INTERVAL_SEC
+
+
 
 if __name__ == '__main__':
     main()
