@@ -13,7 +13,7 @@ import smtplib
 from time import gmtime, mktime
 
 
-def main():
+def main(event=None, context=None):
 
     logging.basicConfig(level=logging.INFO)
 
