@@ -7,12 +7,15 @@ import feedparser
 import html
 from itertools import chain
 import json
+import logging
 import os
 import smtplib
 from time import gmtime, mktime
 
 
 def main():
+
+    logging.basicConfig(level=logging.INFO)
 
     feeds = [json.loads(line) for line in open('feeds.jsonl')]
     entries = parse_feeds(feeds)
@@ -25,22 +28,29 @@ def send_email(entries):
 
         template = open('template.html').read()
 
+        logging.info('Generating email message...')
+
         msg = EmailMessage()
         msg.set_content(MIMEText(template.format(table=make_table(entries)), 'html'))
         msg['Subject'] = '{} feed update(s)'.format(len(entries))
 
+
+        logging.info('Setting up and connecting to SMTP server')
         s = smtplib.SMTP(host=os.environ['EMAIL_HOST'],
                          port=os.environ['EMAIL_PORT'])
 
         s.starttls()
         s.login(user=os.environ['EMAIL_USERNAME'],
                 password=os.environ['EMAIL_PASSWORD'])
+
+        logging.info('Sending mail...')
         s.sendmail(os.environ['EMAIL_SENDER'], os.environ['EMAIL_RECIPIENT'], msg.as_string())
         s.close()
 
 
 def make_table(entries):
 
+    logging.info('Making html table from entries...')
     output = ''
 
     for e in entries:
@@ -60,9 +70,11 @@ def make_table(entries):
 
 def parse_feeds(feeds):
 
+    logging.info('Parsing feeds...')
     entries = chain.from_iterable([feedparser.parse(f['link']).entries for f in feeds])
-    return sorted([process_entry(e) for e in entries
-                   if within_interval(e)], key=lambda k: k.get('timestamp'), reverse=True)
+    logging.info('Sorting entries from feeds...')
+    return sorted([process_entry(e) for e in entries if within_interval(e)],
+                   key=lambda k: k.get('timestamp'), reverse=True)
 
 
 def process_entry(e):
