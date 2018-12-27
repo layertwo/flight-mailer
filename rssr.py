@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 from datetime import datetime
-from email.message import EmailMessage
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import feedparser
 import html
 from itertools import chain
@@ -30,9 +30,15 @@ def send_email(entries):
 
         logging.info('Generating email message...')
 
-        msg = EmailMessage()
-        msg.set_content(MIMEText(template.format(table=make_table(entries)), 'html'))
+        msg = MIMEMultipart('related')
+        msg['From'] = os.environ['EMAIL_SENDER']
+        msg['To'] = os.environ['EMAIL_RECIPIENT']
         msg['Subject'] = '{} feed update(s)'.format(len(entries))
+
+        content = MIMEMultipart('alternative')
+        content.attach(MIMEText(template.format(table=make_table(entries)), 'html'))
+
+        msg.attach(content)
 
 
         logging.info('Setting up and connecting to SMTP server')
@@ -46,6 +52,10 @@ def send_email(entries):
         logging.info('Sending mail...')
         s.sendmail(os.environ['EMAIL_SENDER'], os.environ['EMAIL_RECIPIENT'], msg.as_string())
         s.close()
+
+    else:
+
+        logging.info('No entries found within interval. No email to send')
 
 
 def make_table(entries):
