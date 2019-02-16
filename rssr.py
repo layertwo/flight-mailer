@@ -11,11 +11,10 @@ import logging
 import os
 import smtplib
 from time import gmtime, mktime
+logging.basicConfig(level=logging.INFO)
 
 
 def main(event=None, context=None):
-
-    logging.basicConfig(level=logging.INFO)
 
     feeds = [json.loads(line) for line in open('feeds.jsonl')]
     entries = parse_feeds(feeds)
