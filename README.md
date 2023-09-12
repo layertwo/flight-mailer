@@ -1,13 +1,8 @@
-# rssr
+# flight-mailer
 
 ## Overview
 
-RSS feed to email utility. Filters entries based on last timeframe.
-
-## FAQ
-
-*That's a stupid name. Why?*
-I needed a utility to scrape some RSS feeds I browse and then email me.
+AWS Lambda function for reading RSS feeds and transforming them to an email. Filters entries based on last timeframe.
 
 ## Environment Variables
 
